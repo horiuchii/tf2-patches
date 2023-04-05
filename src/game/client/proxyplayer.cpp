@@ -111,6 +111,48 @@ void CPlayerTeamMatchProxy::OnBind( void *pC_BaseEntity )
 
 EXPOSE_INTERFACE( CPlayerTeamMatchProxy, IMaterialProxy, "PlayerTeamMatch" IMATERIAL_PROXY_INTERFACE_VERSION );
 
+//-----------------------------------------------------------------------------
+// Returns the players teamnum
+//-----------------------------------------------------------------------------
+
+class CPlayerTeamProxy : public CResultProxy
+{
+public:
+	bool Init(IMaterial* pMaterial, KeyValues* pKeyValues);
+	void OnBind(void* pC_BaseEntity);
+
+private:
+};
+
+bool CPlayerTeamProxy::Init(IMaterial* pMaterial, KeyValues* pKeyValues)
+{
+	if (!CResultProxy::Init(pMaterial, pKeyValues))
+		return false;
+
+	return true;
+}
+
+void CPlayerTeamProxy::OnBind(void* pC_BaseEntity)
+{
+	C_BaseEntity* pPlayer = C_BasePlayer::GetLocalPlayer();
+	if (!pPlayer)
+		return;
+
+	Assert(m_pResult);
+	switch (pPlayer->GetTeamNumber())
+	{
+		case TF_TEAM_RED: SetFloatResult(0); break;
+		case TF_TEAM_BLUE: SetFloatResult(1); break;
+		default: SetFloatResult(2); break;
+	}
+
+	if (ToolsEnabled())
+	{
+		ToolFramework_RecordMaterialParams(GetMaterial());
+	}
+}
+
+EXPOSE_INTERFACE(CPlayerTeamProxy, IMaterialProxy, "PlayerTeam" IMATERIAL_PROXY_INTERFACE_VERSION);
 
 //-----------------------------------------------------------------------------
 // Returns the player view direction
